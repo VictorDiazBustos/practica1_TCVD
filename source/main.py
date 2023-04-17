@@ -44,7 +44,48 @@ fill-rule="evenodd"></path>
 #     if categoria_url is not None:
 #         URLs.append(categoria_url)
 
-# # Imprimir las URLs de las categorías de ropa
+# # Imprimir las# URLs de las categorías de ropa
 # print(URLs)
 
+#products = soup.find_all('article', {'data-test-id': 'productListItem'})
 
+#TEST1
+import requests
+from bs4 import BeautifulSoup
+import csv
+
+url = 'https://www.zara.com/es'
+page = requests.get(url)
+
+soup = BeautifulSoup(page.content, 'html.parser')
+
+with open('mujer.csv', mode='w', newline='', encoding='utf-8') as mujer_file:
+    mujer_writer = csv.writer(mujer_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    mujer_writer.writerow(['Name', 'Availability', 'Price', 'Product Code', 'Color'])
+
+with open('hombre.csv', mode='w', newline='', encoding='utf-8') as hombre_file:
+    hombre_writer = csv.writer(hombre_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    hombre_writer.writerow(['Name', 'Availability', 'Price', 'Product Code', 'Color'])
+
+products = soup.find_all('article', {'data-test-id': 'productListItem'})
+
+for product in products:
+    gender = product.find('a', {'data-test-id': 'product-link'}).get('href').split('/')[-3]
+    if gender == 'mujer':
+        name = product.find('a', {'data-test-id': 'product-link'}).get('aria-label')
+        availability = product.find('div', {'class': 'product-status'}).text.strip()
+        price = product.find('span', {'class': 'price'}).text.strip()
+        product_code = product.find('div', {'class': 'product-reference'}).text.strip()
+        color = product.find('div', {'class': 'product-colors'}).text.strip()
+        with open('mujer.csv', mode='a', newline='', encoding='utf-8') as mujer_file:
+            mujer_writer = csv.writer(mujer_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            mujer_writer.writerow([name, availability, price, product_code, color])
+    elif gender == 'hombre':
+        name = product.find('a', {'data-test-id': 'product-link'}).get('aria-label')
+        availability = product.find('div', {'class': 'product-status'}).text.strip()
+        price = product.find('span', {'class': 'price'}).text.strip()
+        product_code = product.find('div', {'class': 'product-reference'}).text.strip()
+        color = product.find('div', {'class': 'product-colors'}).text.strip()
+        with open('hombre.csv', mode='a', newline='', encoding='utf-8') as hombre_file:
+            hombre_writer = csv.writer(hombre_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            hombre_writer.writerow([name, availability, price, product_code, color])
