@@ -59,11 +59,11 @@ page = requests.get(url)
 
 soup = BeautifulSoup(page.content, 'html.parser')
 
-with open('mujer.csv', mode='w', newline='', encoding='utf-8') as mujer_file:
+with open('../dataset/mujer.csv', mode='w', newline='', encoding='utf-8') as mujer_file:
     mujer_writer = csv.writer(mujer_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     mujer_writer.writerow(['Name', 'Availability', 'Price', 'Product Code', 'Color'])
 
-with open('hombre.csv', mode='w', newline='', encoding='utf-8') as hombre_file:
+with open('../dataset/hombre.csv', mode='w', newline='', encoding='utf-8') as hombre_file:
     hombre_writer = csv.writer(hombre_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     hombre_writer.writerow(['Name', 'Availability', 'Price', 'Product Code', 'Color'])
 
@@ -77,7 +77,7 @@ for product in products:
         price = product.find('span', {'class': 'price'}).text.strip()
         product_code = product.find('div', {'class': 'product-reference'}).text.strip()
         color = product.find('div', {'class': 'product-colors'}).text.strip()
-        with open('mujer.csv', mode='a', newline='', encoding='utf-8') as mujer_file:
+        with open('../dataset/mujer.csv', mode='a', newline='', encoding='utf-8') as mujer_file:
             mujer_writer = csv.writer(mujer_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             mujer_writer.writerow([name, availability, price, product_code, color])
     elif gender == 'hombre':
@@ -86,6 +86,6 @@ for product in products:
         price = product.find('span', {'class': 'price'}).text.strip()
         product_code = product.find('div', {'class': 'product-reference'}).text.strip()
         color = product.find('div', {'class': 'product-colors'}).text.strip()
-        with open('hombre.csv', mode='a', newline='', encoding='utf-8') as hombre_file:
+        with open('../dataset/hombre.csv', mode='a', newline='', encoding='utf-8') as hombre_file:
             hombre_writer = csv.writer(hombre_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             hombre_writer.writerow([name, availability, price, product_code, color])
