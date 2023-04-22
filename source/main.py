@@ -67,9 +67,9 @@ with open('../dataset/hombre.csv', mode='w', newline='', encoding='utf-8') as ho
     hombre_writer = csv.writer(hombre_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     hombre_writer.writerow(['Name', 'Availability', 'Price', 'Product Code', 'Color'])
 
-products = soup.find_all('article', {'data-test-id': 'productListItem'})
+products = soup.find_all('span', class="layout-categories-category__name")
 
-for product in products:
+"""for product in products:
     gender = product.find('a', {'data-test-id': 'product-link'}).get('href').split('/')[-3]
     if gender == 'mujer':
         name = product.find('a', {'data-test-id': 'product-link'}).get('aria-label')
@@ -89,3 +89,6 @@ for product in products:
         with open('../dataset/hombre.csv', mode='a', newline='', encoding='utf-8') as hombre_file:
             hombre_writer = csv.writer(hombre_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             hombre_writer.writerow([name, availability, price, product_code, color])
+"""
+
+print(products)
