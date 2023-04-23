@@ -2,5 +2,4 @@
 requests==2.28.2
 bs4==0.0.1
 lxml==4.9.2
-selenium==4.9.0
-js2xml==0.5.0
+pandas==2.0.0
