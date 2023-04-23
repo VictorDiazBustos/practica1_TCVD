@@ -1,9 +1,9 @@
 Competicion,Fecha,Equipo local,Equipo visitante,Puntos local,Puntos visitante
-ACB,2023/04/22/,Basquet Girona,Granada,88,73
-ACB,2023/04/22/,Valencia Basket,Surne Bilbao,95,88
-ACB,2023/04/22/,Barca,Gran Canaria,87,79
-Playoffs NBA,2023/04/22/,Atlanta Hawks,Boston Celtics,130,122
-Playoffs NBA,2023/04/22/,New York Knicks,Cleveland Cavaliers,99,79
-Playoffs NBA,2023/04/22/,Minnesota Timberwolves,Denver Nuggets,111,120
-Playoffs NBA,2023/04/22/,Brooklyn Nets,Philadelphia 76Ers,88,96
-Playoffs NBA,2023/04/22/,Los Angeles Clippers,Phoenix Suns,100,112
+Acb,2023/04/22/,Basquet Girona,Granada,88,73
+Acb,2023/04/22/,Valencia Basket,Surne Bilbao,95,88
+Acb,2023/04/22/,Barca,Gran Canaria,87,79
+Playoffs Nba,2023/04/22/,Atlanta Hawks,Boston Celtics,130,122
+Playoffs Nba,2023/04/22/,New York Knicks,Cleveland Cavaliers,99,79
+Playoffs Nba,2023/04/22/,Minnesota Timberwolves,Denver Nuggets,111,120
+Playoffs Nba,2023/04/22/,Brooklyn Nets,Philadelphia 76Ers,88,96
+Playoffs Nba,2023/04/22/,Los Angeles Clippers,Phoenix Suns,100,112

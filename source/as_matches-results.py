@@ -14,11 +14,14 @@ headers = {
 }
 
 
+def normalize(text):
+    return unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('ASCII').title().strip()
+
 def obtenerPartidos(soup):
     resultados = []
 
     # Se obtiene el nombre de la competicion
-    nombre_competicion = soup.find('div', {'class': 'txt-competicion'}).find("a").text
+    nombre_competicion = normalize(soup.find('div', {'class': 'txt-competicion'}).find("a").text)
 
     # Se obtienen los partidos
     partidos = soup.find_all('li', {'class': 'list-resultado'})
@@ -41,8 +44,8 @@ def obtenerPartidos(soup):
         * OSASUNA 3-2 BETIS -> Osasuna 3-2 Betis
         * Hawks 130-122 Celtics (1-2) -> Hawks 130-122 Celtics
         """
-        equipo_local = unicodedata.normalize('NFKD', equipo_local).encode('ASCII', 'ignore').decode('ASCII').title().split(" (")[0]
-        equipo_visitante = unicodedata.normalize('NFKD', equipo_visitante).encode('ASCII', 'ignore').decode('ASCII').title().split(" (")[0]
+        equipo_local = normalize(equipo_local)
+        equipo_visitante = normalize(equipo_visitante)
 
         resultados.append({
             "nombre_competicion": nombre_competicion, 
@@ -82,7 +85,6 @@ def obtenerPartidosTenis(soup):
 
     return resultados
 
-
 fecha = datetime.now().strftime('%Y/%m/%d/')
 URL_aux = URL + fecha
 
@@ -97,7 +99,7 @@ soup = BeautifulSoup(response.text,"html.parser")
 deportes = soup.find_all('h2', {'class': 'tit-decoration2'})
 deportes_explorados = set()
 for deporte in deportes:
-    nombre_deporte = unicodedata.normalize('NFKD', deporte.text).encode('ASCII', 'ignore').decode('ASCII').title().split(" (")[0].strip()
+    nombre_deporte = normalize(deporte.text)
 
     # En algunas ocasiones aparece dos veces el mismo deporte en dos secciones distintas
     if (nombre_deporte not in deportes_explorados):
