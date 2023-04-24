@@ -54,7 +54,7 @@ print(url_subList)
 
 def dinero_ropa_pais(url,header):
     web = requests.get(url,headers=header) # Obtenemos la página web
-    soup_real = BeautifulSoup(web.text,'html') # Tranformamos en objeto soup
+    soup_real = BeautifulSoup(web.text,'html.parser') # Tranformamos en objeto soup
     data_url = soup_real.find('div',{'class':'table-responsive-md'}) #Buscamos la tabla, esto lo hicimos con ayuda de un navegador
     
     country=url.replace('/', ' ').split()[2].capitalize() #Cogemos el país de la url y le ponemos la primera letra mayúscula
@@ -98,4 +98,4 @@ df.columns=['Unos zapatos de hombre de cuero (USD)',
        'Unos vaqueros Levis 501 (o equivalente) (USD)']
 
 print(df)
-df.to_csv('PreciosRopaPorPais.csv')
+df.to_csv('../dataset/PreciosRopaPorPais.csv')
