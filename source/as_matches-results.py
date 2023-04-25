@@ -113,7 +113,7 @@ while(resultadosDisponibles(soup)):
                 deportes_explorados.add(nombre_deporte)
 
             elif (nombre_deporte == "Baloncesto"):
-                df_baloncesto = pd.concat([df_baloncesto,obtenerPartidosFutbol(soup, fecha)])
+                df_baloncesto = pd.concat([df_baloncesto,obtenerPartidosBaloncesto(soup, fecha)])
                 deportes_explorados.add(nombre_deporte)
 
     # Obtengo la URL del dia anterior
