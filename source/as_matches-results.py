@@ -1,6 +1,5 @@
-import os
 import requests
-import csv
+import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime
 import unicodedata
@@ -19,10 +18,10 @@ def normalize(text):
 
 # Buscamos que no haya error 404 por sitio web obsoleto o eliminado
 def resultadosDisponibles(soup):
-    return soup.find('span', text='404') == None
+    return soup.find('span', string='404') == None
 
 def obtenerPartidos(soup, fecha):
-    resultados = []
+    resultados = pd.DataFrame(columns=['Competicion','Jornada','Fecha','Equipo local','Equipo visitante','Puntos local','Puntos visitante'])
 
     # Se obtiene el nombre de la competicion
     nombre_competicion = normalize(soup.find('div', {'class': 'txt-competicion'}).find("a").text)
@@ -31,7 +30,7 @@ def obtenerPartidos(soup, fecha):
     # Se obtienen los partidos
     partidos = soup.find_all('li', {'class': 'list-resultado'})
     for partido in partidos:
-        # Se obtienen los equipos y goles locales y visitantes
+        # Se obtienen los equipos y puntos/goles locales y visitantes
         equipo_local = partido.find('div', {'class': 'equipo-local'}).find('span', {'class': 'nombre-equipo'}).text
         equipo_visitante = partido.find('div', {'class': 'equipo-visitante'}).find('span', {'class': 'nombre-equipo'}).text
 
@@ -59,55 +58,35 @@ def obtenerPartidos(soup, fecha):
         equipo_local = normalize(equipo_local)
         equipo_visitante = normalize(equipo_visitante)
 
-        resultados.append({
-            "nombre_competicion": nombre_competicion,
-            "jornada": jornada,
-            "fecha": fecha,
-            "equipo_local": equipo_local,
-            "equipo_visitante": equipo_visitante,
-            "puntos_local": puntos_local,
-            "puntos_visitante": puntos_visitante
-        })
+        resultados = resultados._append({
+            'Competicion':nombre_competicion,
+            'Jornada':jornada,
+            'Fecha':fecha,
+            'Equipo local':equipo_local,
+            'Equipo visitante':equipo_visitante,
+            'Puntos local':puntos_local,
+            'Puntos visitante':puntos_visitante
+        }, ignore_index=True)
 
     return resultados
 
 def obtenerPartidosFutbol(soup, fecha):
-    resultados = []
+    resultados = pd.DataFrame()
     # Se obtienen las competiciones de futbol
     competiciones = soup.find_all('div', {'class': 'cont-modulo resultados', "id": lambda x: x and "futbol" in x})
     for competicion in competiciones:
-        resultados += obtenerPartidos(competicion, fecha)
+        resultados = pd.concat([resultados,obtenerPartidos(competicion, fecha)])
 
     return resultados
 
 def obtenerPartidosBaloncesto(soup, fecha):
-    resultados = []
+    resultados = pd.DataFrame()
     # Se obtienen las competiciones de baloncesto
     competiciones = soup.find_all('div', {'class': 'cont-modulo resultados', "id": lambda x: x and "baloncesto" in x})
     for competicion in competiciones:
-        resultados += obtenerPartidos(competicion, fecha)
+        resultados = pd.concat([resultados,obtenerPartidos(competicion, fecha)])
 
     return resultados
-
-def crearFichero(ruta_fichero, cabecera:list):
-    with open(ruta_fichero, mode='w', newline='', encoding='utf-8') as fichero_partidos:
-        fichero_partidos = csv.writer(fichero_partidos, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        fichero_partidos.writerow(cabecera)
-
-def guardarResultados(ruta_fichero, partidos:list):
-    with open(ruta_fichero, mode='a', newline='', encoding='utf-8') as fichero_partidos:
-        fichero_partidos = csv.writer(fichero_partidos, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        # Se escriben los datos del partido en el fichero CSV
-        for partido in partidos:
-            fichero_partidos.writerow([
-                partido["nombre_competicion"],
-                partido["jornada"],
-                partido["fecha"],
-                partido["equipo_local"],
-                partido["equipo_visitante"],
-                partido["puntos_local"],
-                partido["puntos_visitante"]
-            ])
 
 fecha = datetime.now().strftime('%Y/%m/%d/')
 URL_aux = URL + fecha
@@ -115,8 +94,12 @@ URL_aux = URL + fecha
 response = requests.post(URL_aux, headers=headers)
 soup = BeautifulSoup(response.text,"html.parser")
 
+df_futbol = pd.DataFrame()
+df_baloncesto = pd.DataFrame()
+
 while(resultadosDisponibles(soup)):
     fecha = fecha[:-1] # Se elimina el carácter '/' del final
+    print("Obteniendo datos de {0}...".format(fecha))
 
     deportes = soup.find_all('h2', {'class': 'tit-decoration2'})
     deportes_explorados = set()
@@ -126,43 +109,28 @@ while(resultadosDisponibles(soup)):
         # En algunas ocasiones aparece dos veces el mismo deporte en dos secciones distintas
         if (nombre_deporte not in deportes_explorados):
             if (nombre_deporte == "Futbol"):
-                partidos = obtenerPartidosFutbol(soup, fecha)
+                df_futbol = pd.concat([df_futbol,obtenerPartidosFutbol(soup, fecha)])
                 deportes_explorados.add(nombre_deporte)
-
-                ruta_fichero = '../dataset/partidos_futbol.csv'
-
-                # Si no existe el fichero
-                if not os.path.isfile(ruta_fichero):
-                    # Se crea el fichero y se escriben las cabeceras del fichero CSV
-                    crearFichero(ruta_fichero, ['Competicion','Jornada','Fecha','Equipo local','Equipo visitante','Goles local','Goles visitante'])
-
-                # Se escriben los datos de los partidos en el fichero CSV
-                guardarResultados(ruta_fichero, partidos)
 
             elif (nombre_deporte == "Baloncesto"):
-                partidos = obtenerPartidosBaloncesto(soup, fecha)
+                df_baloncesto = pd.concat([df_baloncesto,obtenerPartidosFutbol(soup, fecha)])
                 deportes_explorados.add(nombre_deporte)
-
-                ruta_fichero = '../dataset/partidos_baloncesto.csv'
-
-                # Si no existe el fichero
-                if not os.path.isfile(ruta_fichero):
-                    # Se crea el fichero y se escriben las cabeceras del fichero CSV
-                    crearFichero(ruta_fichero, ['Competicion','Jornada','Fecha','Equipo local','Equipo visitante','Puntos local','Puntos visitante'])
-
-                # Se escriben los datos de los partidos en el fichero CSV
-                guardarResultados(ruta_fichero, partidos)
-
-            else:
-                print(nombre_deporte + " sin implementar !!!")
 
     # Obtengo la URL del dia anterior
     dia_previo = soup.find('a', {'class': 'slick-prev slick-arrow'})
     fecha = dia_previo.get('href').split("/resultados/")[1]
-    print(fecha)
     URL_aux = URL + fecha
     response = requests.post(URL_aux, headers=headers)
     soup = BeautifulSoup(response.text,"html.parser")
+
+
+
+# Se guardan los datos en un CSV
+df_futbol.columns=['Competicion','Jornada','Fecha','Equipo local','Equipo visitante','Goles local','Goles visitante']
+df_futbol.to_csv('../dataset/partidos_futbol.csv', index=False)
+
+df_baloncesto.columns=['Competicion','Jornada','Fecha','Equipo local','Equipo visitante','Puntos local','Puntos visitante']
+df_baloncesto.to_csv('../dataset/partidos_baloncesto.csv', index=False)
 
 print("------------------------------------")
 print("FIN DEL PROCESO")
